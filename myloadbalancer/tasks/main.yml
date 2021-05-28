@@ -1,0 +1,32 @@
+---
+# tasks file for myloadbalancer
+
+- name: "Checking Haproxy installed or not"
+  command: "rpm -q haproxy"
+  register: proxy
+  ignore_errors: yes
+
+- name: "Installing Haproxy.."
+  package: 
+        name: "haproxy"
+        state: present
+  when: proxy.rc !=0
+
+  #- name: "stopping firewall"
+  #command: "systemctl stop firewalld"
+
+  #- name: "selinux"
+  #selinux:
+  #     policy: targeted     
+  #     state: permissive     
+
+- name: "updating the haproxy cfg file.."
+  template:
+        src: haproxy.cfg.j2
+        dest: /etc/haproxy/haproxy.cfg
+          
+- name: "starting the haproxy services"
+  service:
+        name: haproxy
+        state: restarted
+
